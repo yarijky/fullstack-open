@@ -3,9 +3,21 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import personsService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
+  const [newPerson, setNewPerson] = useState({ name: "", number: "" });
+  const [filter, setFilter] = useState("");
+  const [[message, type], setMessage] = useState([]);
+
+  useEffect(() => {
+    if (message) {
+      setTimeout(() => {
+        setMessage([]);
+      }, 7000);
+    }
+  }, [message]);
 
   useEffect(() => {
     personsService.getAll().then((response) => {
@@ -13,26 +25,40 @@ const App = () => {
     });
   }, []);
 
-  const [newPerson, setNewPerson] = useState({ name: "", number: ""});
-  const [filter, setFilter] = useState("");
-
   const onAdd = () => {
     event.preventDefault();
-    const putPerson = persons.find(person =>person.name === newPerson.name)
+    const putPerson = persons.find((person) => person.name === newPerson.name);
     if (putPerson) {
       if (
         window.confirm(
           `${newPerson.name} is already added to phonebook, replace the old number with a new one?`
         )
       ) {
-        personsService.update(putPerson.id, newPerson).then((response) => {
-          setPersons(persons.map(person => person.id !== putPerson.id ? person : response.data))
-        });
+        personsService
+          .update(putPerson.id, newPerson)
+          .then((response) => {
+            setPersons(
+              persons.map((person) =>
+                person.id !== putPerson.id ? person : response.data
+              )
+            );
+            setMessage([
+              `Number of ${newPerson.name} changed correctly`,
+              "correct",
+            ]);
+          })
+          .catch(() => {
+            setMessage([
+              `Information of ${newPerson.name} has already been removed from the server`,
+              "error",
+            ]);
+          });
       }
     } else {
       personsService.create(newPerson).then((response) => {
         setPersons(persons.concat(response.data));
-        setNewPerson({ name: "", number: ""});
+        setMessage([`Added ${newPerson.name}`, "correct"]);
+        setNewPerson({ name: "", number: "" });
       });
     }
   };
@@ -65,6 +91,10 @@ const App = () => {
             }
           })
         );
+        setMessage([
+          `${person.name} has been deleted correctly`,
+          "correct",
+        ]);
       });
     }
   };
@@ -78,6 +108,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} type={type} />
       <Filter filter={filter} onChange={handleFilterChange} />
       <h3>Add a new</h3>
       <PersonForm
