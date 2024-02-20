@@ -2,57 +2,71 @@ import { useEffect, useState } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-import axios from "axios";
+import personsService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
 
   useEffect(() => {
-    const eventHandler = (response) => {
+    personsService.getAll().then((response) => {
       setPersons(response.data);
-    };
-
-    const promise = axios.get("http://localhost:3001/persons");
-    promise.then(eventHandler);
+    });
   }, []);
 
-  const [newPerson, setNewPerson] = useState({ name: "", number: "", id: "" });
+  const [newPerson, setNewPerson] = useState({ name: "", number: ""});
   const [filter, setFilter] = useState("");
 
-  const handleOnClick = () => {
+  const onAdd = () => {
     event.preventDefault();
-    if (
-      persons.find(
-        (person) =>
-          person === newPerson.name && person.number === newPerson.number
-      )
-    ) {
-      alert(`${newPerson.name} is already added to phonebook`);
+    const putPerson = persons.find(person =>person.name === newPerson.name)
+    if (putPerson) {
+      if (
+        window.confirm(
+          `${newPerson.name} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        personsService.update(putPerson.id, newPerson).then((response) => {
+          setPersons(persons.map(person => person.id !== putPerson.id ? person : response.data))
+        });
+      }
     } else {
-      const newPersonas = persons.concat(newPerson);
-      setPersons(newPersonas);
-      setNewPerson({ name: "", number: "", id: "" });
+      personsService.create(newPerson).then((response) => {
+        setPersons(persons.concat(response.data));
+        setNewPerson({ name: "", number: ""});
+      });
     }
   };
 
-  const handleNameChange = (event) => {
+  const onName = (event) => {
     setNewPerson({
       ...newPerson,
       name: event.target.value,
-      id: persons.length,
     });
   };
 
-  const handleNumberChange = (event) => {
+  const onNumber = (event) => {
     setNewPerson({
       ...newPerson,
       number: event.target.value,
-      id: persons.length,
     });
   };
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
+  };
+
+  const onDelete = (person) => {
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      personsService.deletePerson(person.id).then((response) => {
+        setPersons(
+          persons.filter((person) => {
+            if (person.id !== response.data.id) {
+              return person;
+            }
+          })
+        );
+      });
+    }
   };
 
   const dataFiltred = filter
@@ -69,12 +83,12 @@ const App = () => {
       <PersonForm
         name={newPerson.name}
         number={newPerson.number}
-        onChangeName={handleNameChange}
-        onChangeNumber={handleNumberChange}
-        onClick={handleOnClick}
+        onChangeName={onName}
+        onChangeNumber={onNumber}
+        onClick={onAdd}
       />
       <h3>Numbers</h3>
-      <Persons data={dataFiltred} />
+      <Persons data={dataFiltred} onDelete={onDelete} />
     </div>
   );
 };
