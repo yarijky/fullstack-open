@@ -1,6 +1,7 @@
 import axios from 'axios'
 // const baseUrl = 'http://localhost:3001/persons' //singolo esercizio
-const baseUrl = 'http://localhost:3001/api/phonebook' //insieme al server
+// const baseUrl = 'http://localhost:3001/api/phonebook' //insieme al server absolute
+const baseUrl = '/api/phonebook' //insieme al server relative
 
 const getAll = () => {
   return axios.get(baseUrl)
