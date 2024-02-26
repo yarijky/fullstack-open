@@ -2,52 +2,78 @@ import { useEffect, useState } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-import axios from "axios";
+import personsService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
+  const [newPerson, setNewPerson] = useState({ name: "", number: "" });
+  const [filter, setFilter] = useState("");
+  const [[message, type], setMessage] = useState([]);
 
   useEffect(() => {
-    const eventHandler = (response) => {
-      setPersons(response.data);
-    };
+    if (message) {
+      setTimeout(() => {
+        setMessage([]);
+      }, 7000);
+    }
+  }, [message]);
 
-    const promise = axios.get("http://localhost:3001/persons");
-    promise.then(eventHandler);
+  useEffect(() => {
+    personsService.getAll().then((response) => {
+      setPersons(response.data);
+    });
   }, []);
 
-  const [newPerson, setNewPerson] = useState({ name: "", number: "", id: "" });
-  const [filter, setFilter] = useState("");
-
-  const handleOnClick = () => {
+  const onAdd = () => {
     event.preventDefault();
-    if (
-      persons.find(
-        (person) =>
-          person === newPerson.name && person.number === newPerson.number
-      )
-    ) {
-      alert(`${newPerson.name} is already added to phonebook`);
+    const putPerson = persons.find((person) => person.name === newPerson.name);
+    if (putPerson) {
+      if (
+        window.confirm(
+          `${newPerson.name} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        personsService
+          .update(putPerson.id, newPerson)
+          .then((response) => {
+            setPersons(
+              persons.map((person) =>
+                person.id !== putPerson.id ? person : response.data
+              )
+            );
+            setMessage([
+              `Number of ${newPerson.name} changed correctly`,
+              "correct",
+            ]);
+          })
+          .catch(() => {
+            setMessage([
+              `Information of ${newPerson.name} has already been removed from the server`,
+              "error",
+            ]);
+          });
+      }
     } else {
-      const newPersonas = persons.concat(newPerson);
-      setPersons(newPersonas);
-      setNewPerson({ name: "", number: "", id: "" });
+      personsService.create(newPerson).then((response) => {
+        setPersons(persons.concat(response.data));
+        setMessage([`Added ${newPerson.name}`, "correct"]);
+        setNewPerson({ name: "", number: "" });
+      });
     }
   };
 
-  const handleNameChange = (event) => {
+  const onName = (event) => {
     setNewPerson({
       ...newPerson,
       name: event.target.value,
-      id: persons.length,
     });
   };
 
-  const handleNumberChange = (event) => {
+  const onNumber = (event) => {
     setNewPerson({
       ...newPerson,
       number: event.target.value,
-      id: persons.length,
     });
   };
 
@@ -55,26 +81,45 @@ const App = () => {
     setFilter(event.target.value);
   };
 
-  const dataFiltred = filter
-    ? persons.filter((person) =>
-        person.name.toLowerCase().includes(filter.toLowerCase())
-      )
-    : persons;
+  const onDelete = (person) => {
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      personsService.deletePerson(person.id).then((response) => {
+        setPersons(
+          persons.filter((person) => {
+            if (person.id !== response.data.id) {
+              return person;
+            }
+          })
+        );
+        setMessage([
+          `${person.name} has been deleted correctly`,
+          "correct",
+        ]);
+      });
+    }
+  }
+
+      const dataFiltred = filter
+      ? persons.filter((person) =>
+          person.name.toLowerCase().includes(filter.toLowerCase())
+        )
+      : persons;
 
   return (
     <div>
-      <h2>Countries</h2>
+      <h2>Phonebook</h2>
+      <Notification message={message} type={type} />
       <Filter filter={filter} onChange={handleFilterChange} />
       <h3>Add a new</h3>
       <PersonForm
         name={newPerson.name}
         number={newPerson.number}
-        onChangeName={handleNameChange}
-        onChangeNumber={handleNumberChange}
-        onClick={handleOnClick}
+        onChangeName={onName}
+        onChangeNumber={onNumber}
+        onClick={onAdd}
       />
       <h3>Numbers</h3>
-      <Persons data={dataFiltred} />
+      <Persons data={dataFiltred} onDelete={onDelete} />
     </div>
   );
 };
