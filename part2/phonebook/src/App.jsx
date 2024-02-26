@@ -83,27 +83,24 @@ const App = () => {
 
   const onDelete = (person) => {
     if (window.confirm(`Delete ${person.name} ?`)) {
-      personsService.deletePerson(person.id).then((response) => {
+      personsService.deletePerson(person.id).then(() => {
         setPersons(
-          persons.filter((person) => {
-            if (person.id !== response.data.id) {
+          persons.filter((prs) => {
+            if (prs.id !== person.id) {
               return person;
             }
           })
         );
-        setMessage([
-          `${person.name} has been deleted correctly`,
-          "correct",
-        ]);
+        setMessage([`${person.name} has been deleted correctly`, "correct"]);
       });
     }
-  }
+  };
 
-      const dataFiltred = filter
-      ? persons.filter((person) =>
-          person.name.toLowerCase().includes(filter.toLowerCase())
-        )
-      : persons;
+  const dataFiltred = filter
+    ? persons.filter((person) =>
+        person.name.toLowerCase().includes(filter.toLowerCase())
+      )
+    : persons;
 
   return (
     <div>
