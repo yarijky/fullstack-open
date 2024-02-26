@@ -27,7 +27,7 @@ const App = () => {
 
   const onAdd = () => {
     event.preventDefault();
-    const putPerson = persons.find((person) => person.name === newPerson.name);
+    const putPerson = persons.find((person) => person.name.toLowerCase() === newPerson.name.toLowerCase());
     if (putPerson) {
       if (
         window.confirm(
