@@ -27,7 +27,9 @@ const App = () => {
 
   const onAdd = () => {
     event.preventDefault();
-    const putPerson = persons.find((person) => person.name.toLowerCase() === newPerson.name.toLowerCase());
+    const putPerson = persons.find(
+      (person) => person.name.toLowerCase() === newPerson.name.toLowerCase()
+    );
     if (putPerson) {
       if (
         window.confirm(
@@ -47,19 +49,22 @@ const App = () => {
               "correct",
             ]);
           })
-          .catch(() => {
-            setMessage([
-              `Information of ${newPerson.name} has already been removed from the server`,
-              "error",
-            ]);
+          .catch((error) => {
+            setMessage([error.response.data, "error"]);
           });
       }
     } else {
-      personsService.create(newPerson).then((response) => {
-        setPersons(persons.concat(response.data));
-        setMessage([`Added ${newPerson.name}`, "correct"]);
-        setNewPerson({ name: "", number: "" });
-      });
+      personsService
+        .create(newPerson)
+        .then((response) => {
+          setPersons(persons.concat(response.data));
+          setMessage([`Added ${newPerson.name}`, "correct"]);
+          setNewPerson({ name: "", number: "" });
+        })
+        .catch((error) => {
+          setMessage([error.response.data, "error"]);
+          // console.log(error)
+        });
     }
   };
 
