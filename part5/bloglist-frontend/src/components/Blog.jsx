@@ -21,15 +21,15 @@ const Blog = ({ blog, handleDeleteBlog, handleUpdateBlog }) => {
   };
 
   return !showAll ? (
-    <div className="blog">
+    <div className="blog title">
       {blog.title}
-      <button onClick={() => setShowAll(true)}>view</button>
+      <button onClick={() => setShowAll(true)}>show</button>
     </div>
   ) : (
-    <div className="blog">
+    <div className="blog title">
       {blog.title}
       <button onClick={() => setShowAll(false)}>hide</button>
-      <div>
+      <div className="url">
         <a
           href="https://lh3.googleusercontent.com/proxy/vvvQ9Xtno1X98pgUKeYUW0BJEeUI9CVmhrLBBc_w2v9rwHUK4QRUeX8qmblCSO0sVB0TJ2hZAprdThP3gGxuexyq_6Xf19a1vBkNuRXnbanF7CkAw0PYqGaNOBHZslcfYzj8cYBPmAMAOUvTsW0p7Ysg1skPuSmFztw"
           target="_blank"
@@ -38,12 +38,12 @@ const Blog = ({ blog, handleDeleteBlog, handleUpdateBlog }) => {
           {blog.url}
         </a>
       </div>
-      <div>
+      <div className="likes">
         likes: {blog.likes}{' '}
         <button onClick={() => handleLike(blog.id)}>like</button>
       </div>
 
-      <div>{blog.author}</div>
+      <div className="author">{blog.author}</div>
       <button onClick={() => handleDelete(blog)}>delete</button>
     </div>
   );
