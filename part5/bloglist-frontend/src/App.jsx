@@ -57,7 +57,7 @@ const App = () => {
   };
 
   const loginForm = () => (
-    <form onSubmit={handleLogin}>
+    <form onSubmit={handleLogin} className="login-form">
       <h2>login in</h2>
       <div>
         username
@@ -65,6 +65,7 @@ const App = () => {
           type="text"
           value={username}
           name="Username"
+          className="login-username"
           onChange={({ target }) => setUsername(target.value)}
         />
       </div>
@@ -74,10 +75,11 @@ const App = () => {
           type="password"
           value={password}
           name="Password"
+          className="login-password"
           onChange={({ target }) => setPassword(target.value)}
         />
       </div>
-      <button type="submit">login</button>
+      <button type="submit" className="login-submit">login</button>
     </form>
   );
 
@@ -125,7 +127,7 @@ const App = () => {
         loginForm()
       ) : (
         <div>
-          <p>{user.name} logged-in</p>
+          <p className="name-loggedin">{user.name} logged-in</p>
           <button onClick={() => onLogout()}>logout</button>
           <h2>blogs</h2>
           {newBlogVisible && <BlogForm createBlog={addBlog} />}
