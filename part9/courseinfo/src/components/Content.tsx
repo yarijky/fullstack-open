@@ -1,19 +1,58 @@
-import { CourseParts } from "../types"
+import { CoursePart } from "../types"
 
-const Content = ({ courseParts }: { courseParts: CourseParts[] }) => {
-  return (
-    <div>
-      <p>
-        {courseParts[0].name} {courseParts[0].exerciseCount}
-      </p>
-      <p>
-        {courseParts[1].name} {courseParts[1].exerciseCount}
-      </p>
-      <p>
-        {courseParts[2].name} {courseParts[2].exerciseCount}
-      </p>
-    </div>
-  )
+type ContentProps = { courseParts: CoursePart[] }
+
+const Content = ({ courseParts }: ContentProps) => {
+  return courseParts.map((part) => {
+    switch (part.kind) {
+      case "basic":
+        return (
+          <p>
+            <b>
+              {part.name} {part.exerciseCount}
+            </b>
+            <br />
+            <i>{part.description}</i>
+          </p>
+        )
+      case "group":
+        return (
+          <p>
+            <b>
+              {part.name} {part.exerciseCount}
+            </b>
+            <br />
+            {`project exercises ${part.groupProjectCount}`}
+          </p>
+        )
+
+      case "background":
+        return (
+          <p>
+            <b>
+              {part.name} {part.exerciseCount}{" "}
+            </b>
+            <br />
+            <i>{part.description}</i>
+            <br />
+            {`submit to: ${part.backgroundMaterial}`}
+          </p>
+        )
+
+      case "special":
+        return (
+          <p>
+            <b>
+              {part.name} {part.exerciseCount}{" "}
+            </b>
+            <br />
+            <i>{part.description}</i>
+            <br />
+            {`required skills:${part.requirements.map((req) => ` ${req}`)}`}
+          </p>
+        )
+    }
+  })
 }
 
 export default Content

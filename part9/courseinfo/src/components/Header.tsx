@@ -1,4 +1,4 @@
-const Header = ({name}: {name :string}) => {
+const Header = ({ name }: { name: string }) => {
   return <h1>{name}</h1>
 }
 
