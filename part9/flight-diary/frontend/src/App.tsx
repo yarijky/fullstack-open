@@ -40,7 +40,7 @@ const App = () => {
 
   return (
     <div>
-      {errorMessage && <div>{errorMessage}</div>}
+      {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
       <DiariesAdd onClick={onAddDiary} />
       <DiariesList diaries={diaries} />
     </div>
