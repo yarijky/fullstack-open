@@ -22,8 +22,11 @@ const App = () => {
   }, []);
 
   const onAddDiary = (newDiary: NewDiaryEntry): void => {
-    const newFullDiary = { ...newDiary, id: diaries.length + 9 };
-    setDiaries(diaries.concat(newFullDiary));
+    const fetchNewDiaryPost = async () => {
+      const diary = await diaryServices.create(newDiary)
+      setDiaries(diaries.concat(diary));
+    }
+    void fetchNewDiaryPost()
   };
 
   return (
